@@ -11,7 +11,6 @@ export interface ProfileProps {
   location: string;
   occupation: string;
   moveInDate: string;
-  budget: number;
   preferences: string[];
   avatarUrl?: string;
   matchPercentage?: number;
@@ -23,7 +22,6 @@ const ProfileCard = ({
   location,
   occupation,
   moveInDate,
-  budget,
   preferences,
   avatarUrl,
   matchPercentage,
@@ -91,7 +89,6 @@ const ProfileCard = ({
             <span className="text-sm text-gray-700">Move in: {moveInDate}</span>
           </div>
           <div className="p-2 bg-gray-50 rounded-md">
-            <p className="text-sm text-gray-700 font-medium mb-1">Budget: ${budget.toLocaleString()}/month</p>
             <div className="flex flex-wrap gap-1 mt-1">
               {preferences.map((pref, index) => (
                 <Badge key={index} variant="outline" className="bg-white">

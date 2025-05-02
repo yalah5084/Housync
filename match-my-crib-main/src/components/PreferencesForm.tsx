@@ -1,7 +1,7 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { 
   Card, 
@@ -19,7 +19,6 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { 
-  DollarSign, 
   Home, 
   MapPin,
   Calendar, 
@@ -43,7 +42,6 @@ import {
 
 interface RenterPreferences {
   moveInDate: string;
-  budget: number;
   locations: string[];
   bedrooms: number;
   bathrooms: number;
@@ -60,7 +58,6 @@ interface LandlordPreferences {
   };
   buildingFeatures: string[];
   petsAllowed: boolean;
-  minIncome: number;
   preferredMoveInDate: string;
   leaseLength: string;
   tenantPreferences: string[];
@@ -74,7 +71,6 @@ interface PreferencesFormProps {
 const PreferencesForm = ({ userType, onComplete }: PreferencesFormProps) => {
   const [renterPrefs, setRenterPrefs] = useState<RenterPreferences>({
     moveInDate: 'Next month',
-    budget: 2000,
     locations: [],
     bedrooms: 2,
     bathrooms: 1,
@@ -91,7 +87,6 @@ const PreferencesForm = ({ userType, onComplete }: PreferencesFormProps) => {
     },
     buildingFeatures: [],
     petsAllowed: true,
-    minIncome: 60000,
     preferredMoveInDate: 'Flexible',
     leaseLength: '1 year',
     tenantPreferences: []
@@ -157,7 +152,6 @@ const PreferencesForm = ({ userType, onComplete }: PreferencesFormProps) => {
     'No parties',
     'Clean record',
     'Good credit score',
-    'Income verification',
     'Employment verification',
     'References required',
     'Background check',
@@ -202,7 +196,6 @@ const PreferencesForm = ({ userType, onComplete }: PreferencesFormProps) => {
     'No smoking',
     'No pets',
     'No subletting',
-    'Income verification required',
     'Credit check required',
     'Background check required',
     'References required',
@@ -327,20 +320,6 @@ const PreferencesForm = ({ userType, onComplete }: PreferencesFormProps) => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium mb-1 block">
-                  What's your monthly budget? ${renterPrefs.budget}
-                </label>
-                <Slider
-                  value={[renterPrefs.budget]}
-                  min={500}
-                  max={5000}
-                  step={100}
-                  onValueChange={(value) => setRenterPrefs({...renterPrefs, budget: value[0]})}
-                  className="py-4"
-                />
               </div>
             </div>
           </div>
@@ -599,20 +578,6 @@ const PreferencesForm = ({ userType, onComplete }: PreferencesFormProps) => {
             <p className="text-gray-500">Set your basic requirements for potential tenants.</p>
             
             <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-1 block">
-                  Minimum Annual Income: ${landlordPrefs.minIncome.toLocaleString()}
-                </label>
-                <Slider
-                  value={[landlordPrefs.minIncome]}
-                  min={30000}
-                  max={150000}
-                  step={5000}
-                  onValueChange={(value) => setLandlordPrefs({...landlordPrefs, minIncome: value[0]})}
-                  className="py-4"
-                />
-              </div>
-              
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-1 block">Property Available From</label>

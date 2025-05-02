@@ -2,9 +2,14 @@ import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import UserTypeSelect from '@/components/UserTypeSelect';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Home, Users, Check, User, Heart } from 'lucide-react';
+import { MessageCircle, Home, Users, Check, User, Heart, Coins, Calendar, Medal } from 'lucide-react';
 
 const Index = () => {
+  const scrollToHowItWorks = () => {
+    const section = document.getElementById('how-it-works');
+    section?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -28,7 +33,12 @@ const Index = () => {
                     Find My Match
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto gap-2">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="w-full sm:w-auto gap-2"
+                  onClick={scrollToHowItWorks}
+                >
                   <MessageCircle className="h-5 w-5" />
                   Learn More
                 </Button>
@@ -78,7 +88,7 @@ const Index = () => {
       </section>
       
       {/* How It Works Section */}
-      <section className="py-16 bg-gray-50 px-6">
+      <section id="how-it-works" className="py-16 bg-gray-50 px-6">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-match-dark mb-4">How It Works</h2>
@@ -94,7 +104,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">Create Profile</h3>
               <p className="text-gray-600">
-                Build your detailed profile with preferences, lifestyle, and housing needs
+                Build your detailed profile with preferences, lifestyle, and housing needs to earn your first 5 tokens
               </p>
             </div>
             
@@ -104,7 +114,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">Get Matched</h3>
               <p className="text-gray-600">
-                Our algorithm finds your perfect matches based on compatibility
+                Our AI algorithm finds your perfect matches based on compatibility and preferences
               </p>
             </div>
             
@@ -121,8 +131,75 @@ const Index = () => {
         </div>
       </section>
       
+      {/* Token System Section */}
+      <section className="py-16 px-6 bg-white">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-match-dark mb-4">Earn Tokens, Unlock Features</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Our token system rewards meaningful interactions and unlocks premium features
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              <div className="w-12 h-12 bg-match-primary/10 rounded-full flex items-center justify-center mb-4">
+                <Coins className="h-6 w-6 text-match-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Complete Profile</h3>
+              <p className="text-gray-600 mb-2">
+                Fill your preferences to unlock chat and earn your first 5 tokens
+              </p>
+              <div className="text-sm font-medium text-match-primary">+5 tokens</div>
+            </div>
+            
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              <div className="w-12 h-12 bg-match-primary/10 rounded-full flex items-center justify-center mb-4">
+                <MessageCircle className="h-6 w-6 text-match-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Engage in Conversations</h3>
+              <p className="text-gray-600 mb-2">
+                Earn tokens for meaningful chat interactions when users reply
+              </p>
+              <div className="text-sm font-medium text-match-primary">+1 token per reply</div>
+            </div>
+            
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              <div className="w-12 h-12 bg-match-primary/10 rounded-full flex items-center justify-center mb-4">
+                <Calendar className="h-6 w-6 text-match-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Schedule Visits</h3>
+              <p className="text-gray-600 mb-2">
+                Use tokens to unlock the ability to schedule property viewings
+              </p>
+              <div className="text-sm font-medium text-match-primary">Costs 10 tokens</div>
+            </div>
+            
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              <div className="w-12 h-12 bg-match-primary/10 rounded-full flex items-center justify-center mb-4">
+                <Medal className="h-6 w-6 text-match-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Priority Matching</h3>
+              <p className="text-gray-600 mb-2">
+                Get boosted in search results and matching algorithms
+              </p>
+              <div className="text-sm font-medium text-match-primary">Costs 20 tokens</div>
+            </div>
+          </div>
+          
+          <div className="mt-10 text-center">
+            <Link to="/onboarding">
+              <Button size="lg" className="bg-match-primary hover:bg-match-primary/90 gap-2">
+                <Coins className="h-5 w-5" />
+                Start Earning Tokens
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+      
       {/* User Type Selection Section */}
-      <section className="py-16 px-6">
+      <section className="py-16 px-6 bg-gray-50">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-match-dark mb-4">Get Started Today</h2>

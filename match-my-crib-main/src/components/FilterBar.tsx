@@ -1,228 +1,169 @@
-
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
-} from '@/components/ui/popover';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Filter, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Filter, MapPin, DollarSign, Bed, Calendar, X } from 'lucide-react';
+import { UserType } from '@/hooks/useUserType';
 
-interface FilterBarProps {
-  userType: 'renter' | 'landlord';
+export interface FilterBarProps {
+  onFilter?: (filters: FilterState) => void;
+  className?: string;
+  showReset?: boolean;
+  userType?: UserType;
 }
 
-const FilterBar = ({ userType }: FilterBarProps) => {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [priceRange, setPriceRange] = useState([1000, 3000]);
-  const [location, setLocation] = useState<string[]>([]);
-  const [bedrooms, setBedrooms] = useState<number | null>(null);
-  const [moveInDate, setMoveInDate] = useState<string | null>(null);
+export interface FilterState {
+  priceRange: [number, number];
+  bedrooms: string[];
+  location: string;
+  amenities: string[];
+}
+
+const FilterBar = ({ onFilter = () => {}, className = '', showReset = true, userType = 'renter' }: FilterBarProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [priceRange, setPriceRange] = useState<[number, number]>([1000, 3000]);
+  const [bedrooms, setBedrooms] = useState<string[]>([]);
+  const [location, setLocation] = useState('');
+  const [amenities, setAmenities] = useState<string[]>([]);
   
-  const locationOptions = ['Downtown', 'Midtown', 'Uptown', 'Suburbs', 'East Side', 'West Side'];
-  const bedroomOptions = [1, 2, 3, 4, 5];
-  const dateOptions = ['ASAP', 'Next month', '2-3 months', 'Flexible'];
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
   
-  const handleLocationToggle = (loc: string) => {
-    if (location.includes(loc)) {
-      setLocation(location.filter(l => l !== loc));
-    } else {
-      setLocation([...location, loc]);
+  const resetFilters = () => {
+    setPriceRange([1000, 3000]);
+    setBedrooms([]);
+    setLocation('');
+    setAmenities([]);
+    onFilter({
+      priceRange: [1000, 3000],
+      bedrooms: [],
+      location: '',
+      amenities: []
+    });
+  };
+  
+  const handleApplyFilters = () => {
+    onFilter({
+      priceRange,
+      bedrooms,
+      location,
+      amenities
+    });
+    // On mobile, collapse the filter after applying
+    if (window.innerWidth < 768) {
+      setIsExpanded(false);
     }
   };
   
-  const handleClearFilters = () => {
-    setPriceRange([1000, 3000]);
-    setLocation([]);
-    setBedrooms(null);
-    setMoveInDate(null);
+  const handleClearAll = () => {
+    resetFilters();
   };
   
-  const activeFilterCount = [
-    location.length > 0,
-    bedrooms !== null,
-    moveInDate !== null,
-    true, // Always count price range as a filter
-  ].filter(Boolean).length;
+  const formatPrice = (value: number) => {
+    return `$${value.toLocaleString()}`;
+  };
 
   return (
-    <div className="w-full py-4 px-4 bg-white border-b border-gray-200 sticky top-[72px] z-10">
-      <div className="container mx-auto flex flex-wrap justify-between items-center gap-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="gap-2 bg-white">
-                <Filter className="h-4 w-4" />
-                Filters
-                {activeFilterCount > 0 && (
-                  <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center bg-match-primary text-white">
-                    {activeFilterCount}
-                  </Badge>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 p-4">
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-medium text-sm flex items-center">
-                      <DollarSign className="h-4 w-4 mr-1" />
-                      Price Range
-                    </h4>
-                    <p className="text-sm text-gray-500">
-                      ${priceRange[0]} - ${priceRange[1]}
-                    </p>
-                  </div>
-                  <Slider
-                    defaultValue={priceRange}
-                    min={500}
-                    max={5000}
-                    step={100}
-                    onValueChange={setPriceRange}
-                    className="my-4"
-                  />
-                </div>
-                
-                <div>
-                  <h4 className="font-medium text-sm flex items-center mb-2">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    Location
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {locationOptions.map((loc) => (
-                      <Badge
-                        key={loc}
-                        className={cn(
-                          "cursor-pointer",
-                          location.includes(loc)
-                            ? "bg-match-primary hover:bg-match-primary/90"
-                            : "bg-muted hover:bg-muted/80 text-foreground"
-                        )}
-                        onClick={() => handleLocationToggle(loc)}
-                      >
-                        {loc}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium text-sm flex items-center mb-2">
-                    <Bed className="h-4 w-4 mr-1" />
-                    Bedrooms
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {bedroomOptions.map((num) => (
-                      <Badge
-                        key={num}
-                        className={cn(
-                          "cursor-pointer",
-                          bedrooms === num
-                            ? "bg-match-primary hover:bg-match-primary/90"
-                            : "bg-muted hover:bg-muted/80 text-foreground"
-                        )}
-                        onClick={() => setBedrooms(bedrooms === num ? null : num)}
-                      >
-                        {num} {num === 1 ? 'bedroom' : 'bedrooms'}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium text-sm flex items-center mb-2">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Move-in Date
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {dateOptions.map((date) => (
-                      <Badge
-                        key={date}
-                        className={cn(
-                          "cursor-pointer",
-                          moveInDate === date
-                            ? "bg-match-primary hover:bg-match-primary/90"
-                            : "bg-muted hover:bg-muted/80 text-foreground"
-                        )}
-                        onClick={() => setMoveInDate(moveInDate === date ? null : date)}
-                      >
-                        {date}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="pt-2 flex justify-between">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-gray-500"
-                    onClick={handleClearFilters}
-                  >
-                    Clear All
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-match-primary hover:bg-match-primary/90"
-                  >
-                    Apply Filters
-                  </Button>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-          
-          {location.length > 0 && (
-            <Badge 
-              variant="outline" 
-              className="flex items-center gap-1 cursor-pointer hover:bg-gray-100"
-              onClick={() => setLocation([])}
-            >
-              <MapPin className="h-3 w-3" />
-              {location.length === 1 ? location[0] : `${location.length} locations`}
-              <X className="h-3 w-3" />
-            </Badge>
+    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden ${className}`}>
+      <div className="p-3 flex items-center justify-between border-b border-gray-200">
+        <h2 className="font-semibold text-lg flex items-center">
+          <Filter className="h-5 w-5 mr-2" />
+          Filters
+        </h2>
+        
+        <div className="flex gap-2">
+          {showReset && (
+            <Button variant="ghost" size="sm" onClick={handleClearAll} className="h-8 text-sm">
+              Clear All
+            </Button>
           )}
           
-          {bedrooms !== null && (
-            <Badge 
-              variant="outline" 
-              className="flex items-center gap-1 cursor-pointer hover:bg-gray-100"
-              onClick={() => setBedrooms(null)}
-            >
-              <Bed className="h-3 w-3" />
-              {bedrooms} {bedrooms === 1 ? 'bedroom' : 'bedrooms'}
-              <X className="h-3 w-3" />
-            </Badge>
-          )}
-          
-          {moveInDate && (
-            <Badge 
-              variant="outline" 
-              className="flex items-center gap-1 cursor-pointer hover:bg-gray-100"
-              onClick={() => setMoveInDate(null)}
-            >
-              <Calendar className="h-3 w-3" />
-              {moveInDate}
-              <X className="h-3 w-3" />
-            </Badge>
-          )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="md:hidden h-8" 
+            onClick={toggleExpand}
+          >
+            {isExpanded ? <X className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
+          </Button>
+        </div>
+      </div>
+      
+      <div className={`${isExpanded ? 'block' : 'hidden md:block'} p-4 space-y-5`}>
+        <div>
+          <label className="text-sm font-medium mb-2 block">Price Range</label>
+          <div className="pt-6 px-2">
+            <Slider 
+              defaultValue={[1000, 3000]} 
+              min={500} 
+              max={5000} 
+              step={100} 
+              value={priceRange}
+              onValueChange={(values) => setPriceRange(values as [number, number])}
+            />
+          </div>
+          <div className="flex justify-between mt-2 text-sm text-gray-500">
+            <span>{formatPrice(priceRange[0])}</span>
+            <span>{formatPrice(priceRange[1])}</span>
+          </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button 
+        <div>
+          <label className="text-sm font-medium mb-2 block">Bedrooms</label>
+          <ToggleGroup 
+            type="multiple" 
             variant="outline"
-            className="hidden sm:flex"
+            value={bedrooms}
+            onValueChange={setBedrooms}
+            className="justify-start"
           >
-            Reset
-          </Button>
-          <Button className="bg-match-primary hover:bg-match-primary/90">
-            {userType === 'renter' ? 'Find Properties' : 'Find Renters'}
-          </Button>
+            <ToggleGroupItem value="studio" className="text-xs">Studio</ToggleGroupItem>
+            <ToggleGroupItem value="1" className="text-xs">1</ToggleGroupItem>
+            <ToggleGroupItem value="2" className="text-xs">2</ToggleGroupItem>
+            <ToggleGroupItem value="3" className="text-xs">3+</ToggleGroupItem>
+          </ToggleGroup>
         </div>
+        
+        <div>
+          <label className="text-sm font-medium mb-2 block">Location</label>
+          <Input 
+            placeholder="Enter neighborhood or city" 
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+          />
+        </div>
+        
+        <div>
+          <label className="text-sm font-medium mb-2 block">Amenities</label>
+          <div className="flex flex-wrap gap-2">
+            {['Pet-friendly', 'Parking', 'Gym', 'Pool', 'Furnished'].map(amenity => (
+              <Badge 
+                key={amenity} 
+                variant={amenities.includes(amenity) ? "default" : "outline"} 
+                className={`cursor-pointer ${amenities.includes(amenity) ? 'bg-match-primary hover:bg-match-primary/90' : 'hover:bg-gray-100'}`}
+                onClick={() => {
+                  if (amenities.includes(amenity)) {
+                    setAmenities(amenities.filter(a => a !== amenity));
+                  } else {
+                    setAmenities([...amenities, amenity]);
+                  }
+                }}
+              >
+                {amenity}
+              </Badge>
+            ))}
+          </div>
+        </div>
+        
+        <Button 
+          className="w-full bg-match-primary hover:bg-match-primary/90" 
+          onClick={handleApplyFilters}
+        >
+          Apply Filters
+        </Button>
       </div>
     </div>
   );

@@ -26,7 +26,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
 import { 
   User, 
   Home, 
@@ -35,7 +34,6 @@ import {
   X,
   MapPin,
   Briefcase,
-  DollarSign,
   Calendar,
   Bed,
   Bath,
@@ -54,7 +52,6 @@ const Profile = () => {
   const [renterPrefs, setRenterPrefs] = useState({
     occupation: 'Software Engineer',
     moveInDate: 'Next month',
-    budget: 2000,
     locations: ['Downtown', 'Midtown'],
     bedrooms: 2,
     bathrooms: 1,
@@ -66,7 +63,6 @@ const Profile = () => {
     propertyType: 'Apartment',
     occupationPreference: ['Professional', 'Student'],
     petsAllowed: true,
-    minIncome: 60000,
     preferredMoveInDate: 'Flexible',
     leaseLength: '1 year',
   });
@@ -224,20 +220,6 @@ const Profile = () => {
                       <h3 className="text-lg font-medium mb-2">Housing Preferences</h3>
                       
                       <div className="mb-4">
-                        <label className="text-sm font-medium mb-1 block">
-                          Budget: ${renterPrefs.budget.toLocaleString()}/month
-                        </label>
-                        <Slider
-                          value={[renterPrefs.budget]}
-                          min={500}
-                          max={5000}
-                          step={100}
-                          onValueChange={(value) => setRenterPrefs({...renterPrefs, budget: value[0]})}
-                          className="py-4"
-                        />
-                      </div>
-                      
-                      <div className="mb-4">
                         <label className="text-sm font-medium mb-1 block">Preferred Locations</label>
                         <div className="flex flex-wrap gap-2 mt-2">
                           {locationOptions.map((location) => (
@@ -369,20 +351,6 @@ const Profile = () => {
                     
                     <div>
                       <h3 className="text-lg font-medium mb-2">Tenant Preferences</h3>
-                      
-                      <div className="mb-4">
-                        <label className="text-sm font-medium mb-1 block">
-                          Minimum Annual Income: ${landlordPrefs.minIncome.toLocaleString()}
-                        </label>
-                        <Slider
-                          value={[landlordPrefs.minIncome]}
-                          min={30000}
-                          max={150000}
-                          step={5000}
-                          onValueChange={(value) => setLandlordPrefs({...landlordPrefs, minIncome: value[0]})}
-                          className="py-4"
-                        />
-                      </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>

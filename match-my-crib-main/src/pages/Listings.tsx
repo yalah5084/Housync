@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import FilterBar from '@/components/FilterBar';
 import PropertyCard, { PropertyProps } from '@/components/PropertyCard';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, X } from 'lucide-react';
-import ChatPreview from '@/components/ChatPreview';
+import ChatPreview from '@/components/chat/ChatPreview';
 
 const Listings = () => {
   const [showChat, setShowChat] = useState(false);

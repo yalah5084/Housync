@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import FilterBar from '@/components/FilterBar';
-import ChatPreview from '@/components/ChatPreview';
+import ChatPreview from '@/components/chat/ChatPreview';
 import ListingsGrid from '@/components/ListingsGrid';
 import MobileChatPanel from '@/components/MobileChatPanel';
 import { useUserType } from '@/hooks/useUserType';

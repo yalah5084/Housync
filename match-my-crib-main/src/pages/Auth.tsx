@@ -14,16 +14,21 @@ const Auth = () => {
   const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
 
   useEffect(() => {
+    console.log('Auth component mounted - checking for existing session');
+    
     // Check if user is already signed in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        console.log('Existing session found:', session.user.id);
         savePreferencesAndRedirect(session.user.id);
       }
     });
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.id);
       if (event === 'SIGNED_IN' && session) {
+        console.log('User signed in, saving preferences and redirecting to listings');
         await savePreferencesAndRedirect(session.user.id);
       }
     });
@@ -71,7 +76,7 @@ const Auth = () => {
       localStorage.removeItem('userType');
       
       toast.success('Preferences saved successfully!');
-      navigate('/listings'); // Changed from /dashboard to /listings
+      navigate('/listings'); // Redirect to listings page instead of dashboard
     } catch (error) {
       console.error('Error saving preferences:', error);
       toast.error('Error saving preferences. Please try again.');
@@ -81,10 +86,13 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('Starting Google sign-in process');
+      
+      // Make sure the redirectTo is set to the correct URL with the full origin
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth`,
+          redirectTo: `${window.location.origin}/auth`, // Redirect back to /auth after Google authentication
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -92,10 +100,26 @@ const Auth = () => {
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Google sign-in error:', error);
+        throw error;
+      }
+
+      // If data.url exists, navigate to it (this is the Google auth page)
+      if (data?.url) {
+        console.log('Redirecting to Google auth page:', data.url);
+        // This redirects to Google's authentication page
+        // After authentication, Google will redirect back to /auth
+        // and the onAuthStateChange will handle the final redirect to /listings
+        window.location.href = data.url;
+      } else {
+        console.error('No redirect URL returned from Supabase');
+        toast.error('Authentication error. Please try again.');
+      }
     } catch (error) {
       console.error('Error signing in with Google:', error);
       toast.error('Error signing in with Google. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
