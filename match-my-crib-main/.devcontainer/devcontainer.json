@@ -1,0 +1,21 @@
+{
+    "name": "My Deno Codespace",
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:0-18",
+    "features": {
+      // installs the Deno CLI
+      "ghcr.io/devcontainers/features/deno:1": {
+        "version": "latest"
+      }
+    },
+    // automatically adds the official Deno extension
+    "extensions": ["denoland.vscode-deno"],
+    // enable Deno support in VS Code
+    "settings": {
+      "deno.enable": true,
+      "deno.lint": true,
+      "deno.unstable": true,
+      "deno.importMap": "./import_map.json",
+      "deno.config": "./deno.json"
+    }
+  }
+  
