@@ -7,9 +7,12 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+    "lib": ["deno.ns", "dom"],
+    "module": "esnext",
+    "target": "esnext"
     },
-    "noImplicitAny": false,
+    "noImplicitAny": false,    
     "noUnusedParameters": false,
     "skipLibCheck": true,
     "allowJs": true,

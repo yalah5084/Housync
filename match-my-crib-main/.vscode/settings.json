@@ -1,0 +1,14 @@
+{
+    // turn on Deno support…
+    "deno.enable": true,
+    "deno.lint": true,
+    "deno.unstable": true,
+  
+    // point at your configs
+    "deno.config": "./deno.json",
+    "deno.importMap": "./import_map.json",
+  
+    // turn _off_ the built‑in TS validator so Deno’s LSP takes over
+    "typescript.validate.enable": false
+  }
+  

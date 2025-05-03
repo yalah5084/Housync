@@ -1,7 +1,9 @@
 
 // This edge function implements a Python-inspired matching algorithm
 // to pair renters with landlords based on compatibility score
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+/// <reference lib="deno.ns" />
+
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "@supabase/supabase-js";
 
 
@@ -190,10 +192,18 @@ serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error) {
+  } catch (error: unknown) {
+    // Narrow the unknown error to extract a message
+    let msg = "Unknown error";
+    if (error instanceof Error) {
+      msg = error.message;
+    } else {
+      msg = String(error);
+    }
     console.error("Error in match-making algorithm:", error);
+
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: msg }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

@@ -1,7 +1,7 @@
+/// <reference lib="deno.ns" />
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "@supabase/supabase-js";
-
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,36 +9,32 @@ const corsHeaders = {
 };
 
 const supabaseUrl = "https://zoahrthruljrxniasldg.supabase.co";
+// @ts-ignore: Deno namespace
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const requestData = await req.json();
-    const { action, user_id, chat_id, property_id, profile_id, feature, amount } = requestData;
+    const { action, user_id, chat_id, property_id, profile_id, feature, amount } = await req.json();
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     switch (action) {
-      case 'get_tokens': {
-        // Get tokens for a user
+      case "get_tokens": {
         const { data, error } = await supabase
-          .from('user_tokens')
-          .select('tokens, total_earned')
-          .eq('user_id', user_id)
+          .from("user_tokens")
+          .select("tokens, total_earned")
+          .eq("user_id", user_id)
           .single();
-          
-        if (error && error.code !== 'PGRST116') {
-          throw error;
-        }
-        
+        if (error && error.code !== "PGRST116") throw error;
+
         return new Response(
-          JSON.stringify({ 
-            tokens: data?.tokens || 0,
-            total_earned: data?.total_earned || 0
+          JSON.stringify({
+            tokens: data?.tokens ?? 0,
+            total_earned: data?.total_earned ?? 0,
           }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -47,37 +43,30 @@ serve(async (req) => {
         );
       }
 
-      case 'add_message_token': {
-        // Add a token for sending a message with a reply
-        // First get the chat and check if both users have interacted
-        const { data: chatData, error: chatError } = await supabase
-          .from('chats')
-          .select('*')
-          .eq('id', chat_id)
+      case "add_message_token": {
+        const { data: _chatData, error: chatError } = await supabase
+          .from("chats")
+          .select("*")
+          .eq("id", chat_id)
           .single();
-          
-        if (chatError) {
-          throw chatError;
-        }
-        
-        // Check if there are replies in the chat (simplified for demo)
-        const hasReplies = true; // In a real app, check if there are messages from both users
-        
+        if (chatError) throw chatError;
+
+        // Simplified reply check
+        const hasReplies = true;
         if (hasReplies) {
-          // Add token for the user - upsert pattern
           const { error: tokenError } = await supabase
-            .from('user_tokens')
-            .upsert({
-              user_id,
-              tokens: supabase.rpc('increment', { num: 1 }),
-              total_earned: supabase.rpc('increment', { num: 1 }),
-              updated_at: new Date().toISOString()
-            }, { onConflict: 'user_id' });
-          
-          if (tokenError) {
-            throw tokenError;
-          }
-          
+            .from("user_tokens")
+            .upsert(
+              {
+                user_id,
+                tokens: supabase.rpc("increment", { num: 1 }),
+                total_earned: supabase.rpc("increment", { num: 1 }),
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: "user_id" }
+            );
+          if (tokenError) throw tokenError;
+
           return new Response(
             JSON.stringify({ success: true, message: "Token added for message" }),
             {
@@ -95,27 +84,23 @@ serve(async (req) => {
           );
         }
       }
-      
-      case 'unlock_chat': {
-        // Award 5 tokens for completing preferences and unlocking chat
+
+      case "unlock_chat": {
         const { error: tokenError } = await supabase
-          .from('user_tokens')
-          .upsert({
-            user_id,
-            tokens: supabase.rpc('increment', { num: 5 }),
-            total_earned: supabase.rpc('increment', { num: 5 }),
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'user_id' });
-        
-        if (tokenError) {
-          throw tokenError;
-        }
-        
+          .from("user_tokens")
+          .upsert(
+            {
+              user_id,
+              tokens: supabase.rpc("increment", { num: 5 }),
+              total_earned: supabase.rpc("increment", { num: 5 }),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" }
+          );
+        if (tokenError) throw tokenError;
+
         return new Response(
-          JSON.stringify({ 
-            success: true, 
-            message: "Chat unlocked and 5 tokens awarded" 
-          }),
+          JSON.stringify({ success: true, message: "Chat unlocked and 5 tokens awarded" }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
             status: 200,
@@ -123,9 +108,8 @@ serve(async (req) => {
         );
       }
 
-      case 'use_tokens': {
-        // Use tokens to unlock a feature
-        if (!amount || !feature) {
+      case "use_tokens": {
+        if (amount == null || !feature) {
           return new Response(
             JSON.stringify({ success: false, message: "Missing amount or feature" }),
             {
@@ -134,18 +118,14 @@ serve(async (req) => {
             }
           );
         }
-        
-        // Check if user has enough tokens
+
         const { data: userData, error: userError } = await supabase
-          .from('user_tokens')
-          .select('tokens')
-          .eq('user_id', user_id)
+          .from("user_tokens")
+          .select("tokens")
+          .eq("user_id", user_id)
           .single();
-          
-        if (userError) {
-          throw userError;
-        }
-        
+        if (userError) throw userError;
+
         if (!userData || userData.tokens < amount) {
           return new Response(
             JSON.stringify({ success: false, message: "Not enough tokens" }),
@@ -155,37 +135,29 @@ serve(async (req) => {
             }
           );
         }
-        
-        // Deduct tokens
+
         const { error: updateError } = await supabase
-          .from('user_tokens')
+          .from("user_tokens")
           .update({ tokens: userData.tokens - amount })
-          .eq('user_id', user_id);
-          
-        if (updateError) {
-          throw updateError;
-        }
-        
-        // Record feature unlock
+          .eq("user_id", user_id);
+        if (updateError) throw updateError;
+
         const { error: featureError } = await supabase
-          .from('unlocked_features')
+          .from("unlocked_features")
           .insert({
             user_id,
             property_id,
             profile_id,
             feature,
-            tokens_used: amount
+            tokens_used: amount,
           });
-          
-        if (featureError) {
-          throw featureError;
-        }
-        
+        if (featureError) throw featureError;
+
         return new Response(
-          JSON.stringify({ 
-            success: true, 
+          JSON.stringify({
+            success: true,
             message: `Feature "${feature}" unlocked for ${amount} tokens`,
-            remaining_tokens: userData.tokens - amount 
+            remaining_tokens: userData.tokens - amount,
           }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -203,10 +175,16 @@ serve(async (req) => {
           }
         );
     }
-  } catch (error) {
-    console.error("Error in chat-tokens function:", error);
+  } catch (error: unknown) {
+    let msg = "Unknown error";
+    if (error instanceof Error) {
+      msg = error.message;
+    } else {
+      msg = String(error);
+    }
+    console.error("Error in chat‑tokens function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: msg }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

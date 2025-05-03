@@ -4,3 +4,7 @@ project_id = "zoahrthruljrxniasldg"
 # Match-making algorithm function configuration
 [functions.match-algorithm]
 verify_jwt = false
+
+# Chat tokens function configuration
+[functions.chat-tokens]
+verify_jwt = false
